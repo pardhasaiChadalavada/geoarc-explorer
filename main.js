@@ -1,6 +1,5 @@
 var map = L.map('map').setView([20, 0], 2);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-const geod = GeographicLib.Geodesic.WGS84;
 var points = [];
 var useMiles = false;
 
@@ -25,21 +24,19 @@ function clearMapAndPoints() {
 
 function computeArc() {
   if (points.length !== 2) return;
-  const g = geod.InverseLine(points[0].lat, points[0].lon, points[1].lat, points[1].lon);
-  const npts = 100;
-  const path = [];
-  for (let i = 0; i <= npts; i++) {
-    const s = i * g.s13 / npts;
-    const p = g.Position(s);
-    path.push([p.lat2, p.lon2]);
-  }
-  L.polyline(path, { color: 'red' }).addTo(map);
-  map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
+  const p1 = new LatLon(points[0].lat, points[0].lon);
+  const p2 = new LatLon(points[1].lat, points[1].lon);
+  const distance = p1.distanceTo(p2);
+  const km = distance / 1000;
+  const mi = distance / 1609.344;
 
-  const km = g.s13 / 1000;
-  const mi = g.s13 / 1609.344;
   document.getElementById('distance-display').innerText =
     useMiles ? `Distance: ${mi.toFixed(2)} miles` : `Distance: ${km.toFixed(2)} km`;
+
+  const intermediatePoints = p1.intermediatePointsTo(p2, 100);
+  const path = intermediatePoints.map(p => [p.lat, p.lon]);
+  L.polyline(path, { color: 'red' }).addTo(map);
+  map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
 }
 
 map.on('click', function(e) {
@@ -92,7 +89,7 @@ document.getElementById('find-coords-btn').addEventListener('click', () => {
   const lon2 = parseFloat(document.getElementById('lon2').value);
   if ([lat1, lon1, lat2, lon2].some(isNaN)) { alert('Enter valid coordinates'); return; }
   clearMapAndPoints();
-  points = [{lat: lat1, lon: lon1}, {lat: lat2, lon: lon2}];
+  points = [{ lat: lat1, lon: lon1 }, { lat: lat2, lon: lon2 }];
   L.marker([lat1, lon1]).addTo(map);
   L.marker([lat2, lon2]).addTo(map);
   updateSidebar();
