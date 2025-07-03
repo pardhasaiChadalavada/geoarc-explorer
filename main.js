@@ -34,7 +34,6 @@ function computeArc() {
     const p = g.Position(s);
     rawPath.push({ lat: p.lat2, lon: p.lon2 });
   }
-
   const baseLon = rawPath[0].lon;
   const path = rawPath.map(p => {
     let lon = p.lon;
@@ -48,22 +47,21 @@ function computeArc() {
 
   const km = g.s13 / 1000;
   const mi = g.s13 / 1609.344;
-  document.getElementById('distance-display').innerText =
-    useMiles ? `Distance: ${mi.toFixed(2)} miles` : `Distance: ${km.toFixed(2)} km`;
+  document.getElementById('distance-display').innerText = useMiles ? `${mi.toFixed(2)} miles` : `${km.toFixed(2)} km`;
 }
 
-
 map.on('click', function(e) {
-  if (points.length === 2) {
-    clearMapAndPoints();
-  }
+  if (points.length === 2) clearMapAndPoints();
   points.push({ lat: e.latlng.lat, lon: e.latlng.lng });
   L.marker(e.latlng).addTo(map);
   updateSidebar();
   if (points.length === 2) computeArc();
-  L.marker(e.latlng).addTo(map);
-  updateSidebar();
-  if (points.length === 2) computeArc();
+});
+
+document.getElementById('toggle-units-btn').addEventListener('click', () => {
+  useMiles = !useMiles;
+  document.getElementById('toggle-units-btn').innerText = useMiles ? 'Show in km' : 'Show in miles';
+  computeArc();
 });
 
 document.querySelectorAll('input[name="input-mode"]').forEach(input => {
@@ -74,46 +72,25 @@ document.querySelectorAll('input[name="input-mode"]').forEach(input => {
   });
 });
 
-document.getElementById('toggle-units-btn').addEventListener('click', () => {
-  useMiles = !useMiles;
-  document.getElementById('toggle-units-btn').innerText = useMiles ? 'Show in km' : 'Show in miles';
-  computeArc();
-});
-
 document.getElementById('find-address-btn').addEventListener('click', () => {
   const addr1 = document.getElementById('address1').value;
   const addr2 = document.getElementById('address2').value;
-  if (!addr1 || !addr2) {
-    alert('Enter both addresses');
-    return;
-  }
-
-  clearMapAndPoints(); // clear map BEFORE adding any new markers
-
+  if (!addr1 || !addr2) { alert('Enter both addresses'); return; }
+  clearMapAndPoints();
   Promise.all([
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr1)}`).then(r => r.json()),
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr2)}`).then(r => r.json())
-  ])
-  .then(results => {
-    if (results[0].length === 0 || results[1].length === 0) {
-      alert('Address not found');
-      return;
-    }
-
+  ]).then(results => {
+    if (results[0].length === 0 || results[1].length === 0) { alert('Address not found'); return; }
     const p1 = { lat: parseFloat(results[0][0].lat), lon: parseFloat(results[0][0].lon) };
     const p2 = { lat: parseFloat(results[1][0].lat), lon: parseFloat(results[1][0].lon) };
-
     points = [p1, p2];
-
     L.marker([p1.lat, p1.lon]).addTo(map);
     L.marker([p2.lat, p2.lon]).addTo(map);
-
     updateSidebar();
     computeArc();
   });
 });
-
-
 
 document.getElementById('find-coords-btn').addEventListener('click', () => {
   const lat1 = parseFloat(document.getElementById('lat1').value);
