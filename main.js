@@ -54,8 +54,13 @@ function computeArc() {
 
 
 map.on('click', function(e) {
-  if (points.length >= 2) clearMapAndPoints();
+  if (points.length === 2) {
+    clearMapAndPoints();
+  }
   points.push({ lat: e.latlng.lat, lon: e.latlng.lng });
+  L.marker(e.latlng).addTo(map);
+  updateSidebar();
+  if (points.length === 2) computeArc();
   L.marker(e.latlng).addTo(map);
   updateSidebar();
   if (points.length === 2) computeArc();
