@@ -89,8 +89,8 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
   if (!addr1 || !addr2) { alert('Enter both addresses'); return; }
   clearMapAndPoints();
   Promise.all([
-    fetch(https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr1)}).then(r => r.json()),
-    fetch(https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr2)}).then(r => r.json())
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr1)}`).then(r => r.json()),
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr2)}`).then(r => r.json())
   ]).then(results => {
     if (results[0].length === 0 || results[1].length === 0) { alert('Address not found'); return; }
     const p1 = { lat: parseFloat(results[0][0].lat), lon: parseFloat(results[0][0].lon) };
@@ -100,12 +100,6 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
     L.marker([p2.lat, p2.lon]).addTo(map);
     updateSidebar();
     computeArc();
-    var bounds = L.latLngBounds([
-      [p1.lat, p1.lon],
-      [p2.lat, p2.lon]
-    ]);
-    map.fitBounds(bounds, { padding: [20, 20] });
-
   });
 });
 
