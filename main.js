@@ -100,6 +100,9 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
     L.marker([p2.lat, p2.lon]).addTo(map);
     updateSidebar();
     computeArc();
+    
+    var bounds = L.latLngBounds(points);
+    map.fitBounds(bounds, { padding: [20, 20] });
   });
 });
 
