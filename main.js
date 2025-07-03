@@ -89,8 +89,8 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
   if (!addr1 || !addr2) { alert('Enter both addresses'); return; }
   clearMapAndPoints();
   Promise.all([
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr1)}`).then(r => r.json()),
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr2)}`).then(r => r.json())
+    fetch(https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr1)}).then(r => r.json()),
+    fetch(https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr2)}).then(r => r.json())
   ]).then(results => {
     if (results[0].length === 0 || results[1].length === 0) { alert('Address not found'); return; }
     const p1 = { lat: parseFloat(results[0][0].lat), lon: parseFloat(results[0][0].lon) };
