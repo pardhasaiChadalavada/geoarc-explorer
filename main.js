@@ -25,8 +25,8 @@ function clearMapAndPoints() {
 
 function computeArc() {
   if (points.length !== 2) return;
-  const p1 = new LatLon(points[0].lat, points[0].lon);
-  const p2 = new LatLon(points[1].lat, points[1].lon);
+  const p1 = new LatLonEllipsoidal_Vincenty(points[0].lat, points[0].lon);
+  const p2 = new LatLonEllipsoidal_Vincenty(points[1].lat, points[1].lon);
   const distance = p1.distanceTo(p2);
   const km = distance / 1000;
   const mi = distance / 1609.344;
