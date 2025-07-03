@@ -16,13 +16,24 @@ function updateSidebar() {
 }
 
 function clearMapAndPoints() {
-  map.eachLayer(l => {
-    if (l instanceof L.Marker || l instanceof L.Polyline) map.removeLayer(l);
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+      map.removeLayer(layer);
+    }
   });
   points = [];
   document.getElementById('distance-display').innerHTML = '';
   updateSidebar();
+
+  // Clear input fields
+  document.getElementById('address1').value = '';
+  document.getElementById('address2').value = '';
+  document.getElementById('lat1').value = '';
+  document.getElementById('lon1').value = '';
+  document.getElementById('lat2').value = '';
+  document.getElementById('lon2').value = '';
 }
+
 
 function computeArc() {
   if (points.length !== 2) return;
