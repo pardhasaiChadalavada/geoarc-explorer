@@ -28,12 +28,21 @@ function computeArc() {
   if (points.length !== 2) return;
   const g = geod.InverseLine(points[0].lat, points[0].lon, points[1].lat, points[1].lon);
   const npts = 100;
-  const path = [];
+  const rawPath = [];
   for (let i = 0; i <= npts; i++) {
     const s = i * g.s13 / npts;
     const p = g.Position(s);
-    path.push([p.lat2, p.lon2]);
+    rawPath.push({ lat: p.lat2, lon: p.lon2 });
   }
+
+  const baseLon = rawPath[0].lon;
+  const path = rawPath.map(p => {
+    let lon = p.lon;
+    while (lon - baseLon > 180) lon -= 360;
+    while (lon - baseLon < -180) lon += 360;
+    return [p.lat, lon];
+  });
+
   L.polyline(path, { color: 'red' }).addTo(map);
   map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
 
@@ -42,6 +51,7 @@ function computeArc() {
   document.getElementById('distance-display').innerText =
     useMiles ? `Distance: ${mi.toFixed(2)} miles` : `Distance: ${km.toFixed(2)} km`;
 }
+
 
 map.on('click', function(e) {
   if (points.length >= 2) clearMapAndPoints();
