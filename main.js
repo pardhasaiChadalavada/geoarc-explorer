@@ -37,7 +37,7 @@ function clearMapAndPoints() {
 
 function computeArc() {
   if (points.length !== 2) return;
-  const g = geod.InverseLine(points[0].lat, points[0].lon, points[1].lat, points[1].lon);
+  const g = geod.InverseLine(points[0][0], points[0][1], points[1][0], points[1][1]);
   const npts = 100;
   const rawPath = [];
   for (let i = 0; i <= npts; i++) {
@@ -45,6 +45,7 @@ function computeArc() {
     const p = g.Position(s);
     rawPath.push({ lat: p.lat2, lon: p.lon2 });
   }
+
   const baseLon = rawPath[0].lon;
   const path = rawPath.map(p => {
     let lon = p.lon;
@@ -55,11 +56,8 @@ function computeArc() {
 
   L.polyline(path, { color: 'red' }).addTo(map);
   map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
-
-  const km = g.s13 / 1000;
-  const mi = g.s13 / 1609.344;
-  document.getElementById('distance-display').innerText = useMiles ? `${mi.toFixed(2)} miles` : `${km.toFixed(2)} km`;
 }
+
 
 map.on('click', function(e) {
   if (points.length === 2) clearMapAndPoints();
@@ -100,7 +98,7 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
     L.marker([p2.lat, p2.lon]).addTo(map);
     updateSidebar();
     computeArc();
-    
+
     var bounds = L.latLngBounds(points);
     map.fitBounds(bounds, { padding: [20, 20] });
   });
