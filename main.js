@@ -37,13 +37,32 @@ function clearMapAndPoints() {
 
 function computeArc() {
   if (points.length !== 2) return;
+
+  // Compute geodesic inverse line
   const g = geod.InverseLine(points[0][0], points[0][1], points[1][0], points[1][1]);
+  if (!g) {
+    console.error("Invalid geodesic inverse line");
+    return;
+  }
+
   const npts = 100;
   const rawPath = [];
+
   for (let i = 0; i <= npts; i++) {
-    const s = i * g.s13 / npts;
+    const s = (i * g.s13) / npts;
     const p = g.Position(s);
+
+    if (isNaN(p.lat2) || isNaN(p.lon2)) {
+      console.error(`Invalid point at segment ${i}:`, p);
+      continue; // skip bad points
+    }
+
     rawPath.push({ lat: p.lat2, lon: p.lon2 });
+  }
+
+  if (rawPath.length === 0) {
+    console.error("No valid points generated for arc");
+    return;
   }
 
   const baseLon = rawPath[0].lon;
@@ -54,9 +73,21 @@ function computeArc() {
     return [p.lat, lon];
   });
 
-  L.polyline(path, { color: 'red' }).addTo(map);
-  map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
+  // Optionally: clear existing arc
+  if (window.arcLayer) {
+    map.removeLayer(window.arcLayer);
+  }
+
+  window.arcLayer = L.polyline(path, { color: 'red' }).addTo(map);
+
+  // Check if path is valid before fitting bounds
+  if (path.length > 0) {
+    map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
+  } else {
+    console.warn("No valid path to fit bounds");
+  }
 }
+
 
 
 map.on('click', function(e) {
