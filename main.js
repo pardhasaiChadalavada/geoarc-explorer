@@ -87,6 +87,8 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
     points = [p1, p2];
     L.marker([p1.lat, p1.lon]).addTo(map);
     L.marker([p2.lat, p2.lon]).addTo(map);
+    console.log('P1:', p1);
+    console.log('P2:', p2);
     updateSidebar();
     computeArc();
   });
