@@ -1,3 +1,4 @@
+
 var map = L.map('map').setView([20, 0], 2);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 var points = [];
@@ -33,8 +34,13 @@ function computeArc() {
   document.getElementById('distance-display').innerText =
     useMiles ? `Distance: ${mi.toFixed(2)} miles` : `Distance: ${km.toFixed(2)} km`;
 
-  const intermediatePoints = p1.intermediatePointsTo(p2, 100);
-  const path = intermediatePoints.map(p => [p.lat, p.lon]);
+  const path = [];
+  const npts = 100;
+  for (let i = 0; i <= npts; i++) {
+    const frac = i / npts;
+    const p = p1.intermediatePointTo(p2, frac);
+    path.push([p.lat, p.lon]);
+  }
   L.polyline(path, { color: 'red' }).addTo(map);
   map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
 }
