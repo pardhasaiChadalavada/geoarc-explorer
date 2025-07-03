@@ -83,9 +83,11 @@ document.querySelectorAll('input[name="input-mode"]').forEach(input => {
   });
 });
 
-function normalizeLon(lon) {
-  // Wrap longitude into [-180, 180]
-  return ((lon + 180) % 360 + 360) % 360 - 180;
+function adjustLonNearBase(lon, baseLon) {
+  // Bring lon close to baseLon (keeps continuity)
+  while (lon - baseLon > 180) lon -= 360;
+  while (lon - baseLon < -180) lon += 360;
+  return lon;
 }
 
 document.getElementById('find-address-btn').addEventListener('click', () => {
@@ -108,14 +110,16 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
       return;
     }
 
+    const baseLon = parseFloat(results[0][0].lon);
+
     const p1 = {
       lat: parseFloat(results[0][0].lat),
-      lon: normalizeLon(parseFloat(results[0][0].lon))
+      lon: parseFloat(results[0][0].lon)
     };
 
     const p2 = {
       lat: parseFloat(results[1][0].lat),
-      lon: normalizeLon(parseFloat(results[1][0].lon))
+      lon: adjustLonNearBase(parseFloat(results[1][0].lon), baseLon)
     };
 
     points = [p1, p2];
@@ -133,9 +137,9 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
 
 document.getElementById('find-coords-btn').addEventListener('click', () => {
   let lat1 = parseFloat(document.getElementById('lat1').value);
-  let lon1 = normalizeLon(parseFloat(document.getElementById('lon1').value));
+  let lon1 = parseFloat(document.getElementById('lon1').value);
   let lat2 = parseFloat(document.getElementById('lat2').value);
-  let lon2 = normalizeLon(parseFloat(document.getElementById('lon2').value));
+  let lon2 = parseFloat(document.getElementById('lon2').value);
 
   if ([lat1, lon1, lat2, lon2].some(isNaN)) {
     alert('Enter valid coordinates');
@@ -143,6 +147,8 @@ document.getElementById('find-coords-btn').addEventListener('click', () => {
   }
 
   clearMapAndPoints();
+
+  lon2 = adjustLonNearBase(lon2, lon1);
 
   points = [{ lat: lat1, lon: lon1 }, { lat: lat2, lon: lon2 }];
 
@@ -152,5 +158,6 @@ document.getElementById('find-coords-btn').addEventListener('click', () => {
   updateSidebar();
   computeArc();
 });
+
 
 
