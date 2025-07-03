@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/geodesy/latlon-ellipsoidal-vincenty.min.js"></script>
+  <script src="https://geographiclib.sourceforge.io/scripts/geographiclib.js"></script>
   <style>
     html, body {
       height: 100%;
@@ -39,14 +39,9 @@
       margin-bottom: 6px; padding: 4px; background: #f1f1f1; border-radius: 4px;
     }
     .distance-display {
-      margin-top: 12px;
-      margin-bottom: 12px;
-      padding: 8px;
-      background: #caf0f8;
-      border-radius: 6px;
-      color: #03045e;
-      font-weight: bold;
-      text-align: center;
+      margin-top: 12px; margin-bottom: 12px; padding: 8px;
+      background: #caf0f8; border-radius: 6px; color: #03045e;
+      font-weight: bold; text-align: center;
     }
     label, strong { display: block; margin-top: 10px; color: #333; }
     input[type="radio"] { margin-right: 4px; }
@@ -62,8 +57,7 @@
   <div id="sidebar">
     <h2>🌎 GeoArc Explorer</h2>
     <p>Find the shortest path between any two places on Earth.<br/>
-      We show the true curve your plane would fly — even across oceans!
-    </p>
+    We show the true curve your plane would fly — even across oceans!</p>
 
     <div class="adsense-placeholder">[Your Google Ad]</div>
 

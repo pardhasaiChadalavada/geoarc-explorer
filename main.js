@@ -1,6 +1,7 @@
 
 var map = L.map('map').setView([20, 0], 2);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+const geod = GeographicLib.Geodesic.WGS84;
 var points = [];
 var useMiles = false;
 
@@ -25,24 +26,21 @@ function clearMapAndPoints() {
 
 function computeArc() {
   if (points.length !== 2) return;
-  const p1 = new LatLonEllipsoidal_Vincenty(points[0].lat, points[0].lon);
-  const p2 = new LatLonEllipsoidal_Vincenty(points[1].lat, points[1].lon);
-  const distance = p1.distanceTo(p2);
-  const km = distance / 1000;
-  const mi = distance / 1609.344;
-
-  document.getElementById('distance-display').innerText =
-    useMiles ? `Distance: ${mi.toFixed(2)} miles` : `Distance: ${km.toFixed(2)} km`;
-
-  const path = [];
+  const g = geod.InverseLine(points[0].lat, points[0].lon, points[1].lat, points[1].lon);
   const npts = 100;
+  const path = [];
   for (let i = 0; i <= npts; i++) {
-    const frac = i / npts;
-    const p = p1.intermediatePointTo(p2, frac);
-    path.push([p.lat, p.lon]);
+    const s = i * g.s13 / npts;
+    const p = g.Position(s);
+    path.push([p.lat2, p.lon2]);
   }
   L.polyline(path, { color: 'red' }).addTo(map);
   map.fitBounds(L.latLngBounds(path), { padding: [20, 20] });
+
+  const km = g.s13 / 1000;
+  const mi = g.s13 / 1609.344;
+  document.getElementById('distance-display').innerText =
+    useMiles ? `Distance: ${mi.toFixed(2)} miles` : `Distance: ${km.toFixed(2)} km`;
 }
 
 map.on('click', function(e) {
