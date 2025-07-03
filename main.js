@@ -96,10 +96,10 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
     const p1 = { lat: parseFloat(results[0][0].lat), lon: parseFloat(results[0][0].lon) };
     const p2 = { lat: parseFloat(results[1][0].lat), lon: parseFloat(results[1][0].lon) };
     points = [p1, p2];
-    L.marker([p1.lat, p1.lon]).addTo(map);
-    L.marker([p2.lat, p2.lon]).addTo(map);
     updateSidebar();
     computeArc();
+    L.marker([p1.lat, p1.lon]).addTo(map);
+    L.marker([p2.lat, p2.lon]).addTo(map);
     
     var bounds = L.latLngBounds(points);
     map.fitBounds(bounds, { padding: [20, 20] });
