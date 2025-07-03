@@ -84,22 +84,31 @@ document.getElementById('find-address-btn').addEventListener('click', () => {
   const addr1 = document.getElementById('address1').value;
   const addr2 = document.getElementById('address2').value;
   if (!addr1 || !addr2) { alert('Enter both addresses'); return; }
+
   clearMapAndPoints();
+
   Promise.all([
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr1)}`).then(r=>r.json()),
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr2)}`).then(r=>r.json())
   ])
   .then(results => {
-    if (results[0].length === 0 || results[1].length === 0) { alert('Address not found'); return; }
+    if (results[0].length === 0 || results[1].length === 0) {
+      alert('Address not found');
+      return;
+    }
+
     const p1 = { lat: parseFloat(results[0][0].lat), lon: parseFloat(results[0][0].lon) };
     const p2 = { lat: parseFloat(results[1][0].lat), lon: parseFloat(results[1][0].lon) };
     points = [p1, p2];
+
     L.marker([p1.lat, p1.lon]).addTo(map);
     L.marker([p2.lat, p2.lon]).addTo(map);
+
     updateSidebar();
     computeArc();
   });
 });
+
 
 document.getElementById('find-coords-btn').addEventListener('click', () => {
   const lat1 = parseFloat(document.getElementById('lat1').value);
