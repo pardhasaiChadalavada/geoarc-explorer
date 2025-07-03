@@ -83,39 +83,74 @@ document.querySelectorAll('input[name="input-mode"]').forEach(input => {
   });
 });
 
+function normalizeLon(lon) {
+  // Wrap longitude into [-180, 180]
+  return ((lon + 180) % 360 + 360) % 360 - 180;
+}
+
 document.getElementById('find-address-btn').addEventListener('click', () => {
   const addr1 = document.getElementById('address1').value;
   const addr2 = document.getElementById('address2').value;
-  if (!addr1 || !addr2) { alert('Enter both addresses'); return; }
+
+  if (!addr1 || !addr2) {
+    alert('Enter both addresses');
+    return;
+  }
+
   clearMapAndPoints();
+
   Promise.all([
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr1)}`).then(r => r.json()),
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr2)}`).then(r => r.json())
   ]).then(results => {
-    if (results[0].length === 0 || results[1].length === 0) { alert('Address not found'); return; }
-    const p1 = { lat: parseFloat(results[0][0].lat), lon: parseFloat(results[0][0].lon) };
-    const p2 = { lat: parseFloat(results[1][0].lat), lon: parseFloat(results[1][0].lon) };
+    if (results[0].length === 0 || results[1].length === 0) {
+      alert('Address not found');
+      return;
+    }
+
+    const p1 = {
+      lat: parseFloat(results[0][0].lat),
+      lon: normalizeLon(parseFloat(results[0][0].lon))
+    };
+
+    const p2 = {
+      lat: parseFloat(results[1][0].lat),
+      lon: normalizeLon(parseFloat(results[1][0].lon))
+    };
+
     points = [p1, p2];
-    updateSidebar();
-    computeArc();
+
     L.marker([p1.lat, p1.lon]).addTo(map);
     L.marker([p2.lat, p2.lon]).addTo(map);
-    
-    var bounds = L.latLngBounds(points);
+
+    updateSidebar();
+    computeArc();
+
+    const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
     map.fitBounds(bounds, { padding: [20, 20] });
   });
 });
 
 document.getElementById('find-coords-btn').addEventListener('click', () => {
-  const lat1 = parseFloat(document.getElementById('lat1').value);
-  const lon1 = parseFloat(document.getElementById('lon1').value);
-  const lat2 = parseFloat(document.getElementById('lat2').value);
-  const lon2 = parseFloat(document.getElementById('lon2').value);
-  if ([lat1, lon1, lat2, lon2].some(isNaN)) { alert('Enter valid coordinates'); return; }
+  let lat1 = parseFloat(document.getElementById('lat1').value);
+  let lon1 = normalizeLon(parseFloat(document.getElementById('lon1').value));
+  let lat2 = parseFloat(document.getElementById('lat2').value);
+  let lon2 = normalizeLon(parseFloat(document.getElementById('lon2').value));
+
+  if ([lat1, lon1, lat2, lon2].some(isNaN)) {
+    alert('Enter valid coordinates');
+    return;
+  }
+
   clearMapAndPoints();
+
   points = [{ lat: lat1, lon: lon1 }, { lat: lat2, lon: lon2 }];
+
   L.marker([lat1, lon1]).addTo(map);
   L.marker([lat2, lon2]).addTo(map);
+
   updateSidebar();
   computeArc();
 });
+
+
